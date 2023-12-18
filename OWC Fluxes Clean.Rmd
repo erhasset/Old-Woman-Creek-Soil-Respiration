@@ -1,0 +1,588 @@
+---
+title: "Soil respiration: Carbon dioxide and Methane Fluxes at Old Woman Creek"
+author: "Erin Hassett"
+date: "2023-12-14"
+---
+# Description
+```{r setup, include=FALSE} 
+#This code is based on the manuscript: Changes in inundation drive carbon dioxide and methane fluxes in a temperate wetland. Data will be updated to be based on data downloaded from ESS DiVE Hassett E ; Villa J ; Onyango Y ; Eberhard E ; Bohrer G ; Kinsman-Costello L ; Morin T (2023): Carbon flux measurements from chambers collected between July to October 2022 at Old Woman Creek, Huron, Ohio. Rewriting the Redox Paradigm: Dynamic hydrology shapes nutrient and element transformations in a Great Lakes Coastal Estuary, ESS-DIVE repository. Dataset. doi:10.15485/2229438 accessed via 
+# https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2229438 
+```
+#load libraries
+```{r}
+getwd()
+setwd("C:/    ") #change pathway
+library(dplyr)
+library(magrittr)
+library(ggpubr)
+```
+#Recode
+```{r}
+Juneveg<-read.csv("June_cleanveg.csv")
+JuneOpen<-read.csv("June_cleanopen.csv")
+Julyveg<-read.csv("July_cleanveg.csv")
+JulyOpen<-read.csv("July_cleanopen.csv")
+Augveg<-read.csv("August_cleanveg.csv")
+Augopen<-read.csv("August_cleanopen.csv")
+Septveg<-read.csv("Sept_cleanveg.csv")
+Septopen<-read.csv("Sept_cleanopen.csv")
+Octveg<-read.csv("October_cleanveg2.csv")
+Octopen<-read.csv("October_cleanopen.csv")
+
+Juneveg$Name <- factor(Juneveg$Name, 
+                       levels=c('June_V7A', 'June_V8', 'June_V9',
+                                'June_V10','June_V11', 'June_V12',
+                                'June_V1', 'June_V2','June_V3',
+                                'June_V4','June_V5','June_V6',
+                                'June_V7P'))
+
+Juneveg$Name <- recode(Juneveg$Name, 
+                           June_V7A='7 AM', June_V8= '8 AM',
+                       June_V9 = '9 AM', June_V10= '10 AM',
+                       June_V11= '11 AM', June_V12= '12 PM',
+                       June_V1= '1 PM',June_V2= '2 PM', 
+                       June_V3= '3 PM', June_V4= '4 PM',
+                       June_V5= '5 PM', June_V6= '6 PM',
+                       June_V7P= '7 PM')
+
+
+Julyveg$Name <- factor(Julyveg$Name, 
+                       levels=c('July_V7A', 'July_V8', 'July_V9',
+                            'July_V10', 'July_V11', 'July_V12',
+                            'July_V1', 'July_V2', 'July_V3',
+                            'July_V4','July_V5',
+                            'July_V6','July_V7P'))
+
+Julyveg$Name <- recode(Julyveg$Name, 
+                           July_V7A='7 AM', July_V8= '8 AM',
+                       July_V9 = '9 AM', July_V10= '10 AM',
+                       July_V11= '11 AM', July_V12= '12PM',
+                       July_V1= '1 PM', July_V2= '2 PM', 
+                       July_V3= '3 PM', July_V4= '4 PM', 
+                       July_V5= '5 PM', July_V6= '6 PM',
+                       July_V7P= '7 PM')
+JulyOpen$Name <- factor(JulyOpen$Name, 
+                       levels=c('July_O7A', 'July_O8', 'July_O9',
+                                'July_O10', 
+                              'July_O11', 'July_O12', 'July_O1',
+                              'July_O2', 'July_O3',
+                              'July_O4','July_O5',
+                              'July_O6','July_O7P'))
+JulyOpen$Name <- recode(JulyOpen$Name, 
+                           July_O7A='7 AM', July_O8= '8 AM', July_O9 = '9 AM',
+                           July_O10= '10 AM', July_O11= '11 AM', July_O12= '12 PM',
+                           July_O1= '1 PM',July_O2= '2 PM',July_O3= '3 PM', 
+                           July_O4= '4 PM',July_O5= '5 PM', July_O6= '6 PM', July_O7P= '7 PM')
+
+Augveg$Name <- factor(Augveg$Name, 
+                       levels=c('August_V7A', 'August_V8', 'August_V9', 'August_V10',
+                                'August_V11','August_V12','August_V1','August_V2','August_V3',
+                                'August_V4','August_V5', 'August_V6','August_V7P'))
+
+Augveg$Name <- recode(Augveg$Name, 
+                           August_V7A='7 AM', August_V8= '8 AM', August_V9 = '9 AM',
+                           August_V10= '10 AM', August_V11= '11 AM', August_V12= '12 PM',
+                           August_V1= '1 PM',August_V2= '2 PM',August_V3= '3 PM', 
+                           August_V4= '4 PM',August_V5= '5 PM', August_V6= '6 PM', August_V7P= '7 PM')
+Augopen$Name <- factor(Augopen$Name, 
+                       levels=c('August_O7A', 'August_O8', 'August_O9', 'August_O10',
+                                'August_O11','August_O12','August_O1','August_O2','August_O3',
+                                'August_O4','August_O5', 'August_O6','August_O7P'))
+Augopen$Name <- recode(Augopen$Name, 
+                           August_O7A='7 AM', August_O8= '8 AM', August_O9 = '9 AM',
+                           August_O10= '10 AM', August_O11= '11 AM', August_O12= '12 PM',
+                           August_O1= '1 PM',August_O2= '2 PM',August_O3= '3 PM', 
+                           August_O4= '4 PM',August_O5= '5 PM', August_O6= '6 PM', August_O7P= '7 PM')
+Septveg$Name <- factor(Septveg$Name, 
+                       levels=c('Sept_V7A', 'Sept_V8', 'Sept_V9', 'Sept_V10',
+                                'Sept_V11','Sept_V12','Sept_V1','Sept_V2','Sept_V3',
+                                'Sept_V4','Sept_V5', 'Sept_V6','Sept_V7P'))
+
+Septveg$Name <- recode(Septveg$Name, 
+                           Sept_V7A='7 AM', Sept_V8= '8 AM', Sept_V9 = '9 AM',
+                           Sept_V10= '10 AM', Sept_V11= '11 AM', Sept_V12= '12 PM',
+                           Sept_V1= '1 PM',Sept_V2= '2 PM',Sept_V3= '3 PM', 
+                           Sept_V4= '4 PM',Sept_V5= '5 PM', Sept_V6= '6 PM', Sept_V7P= '7 PM')
+Septopen$Name <- factor(Septopen$Name, 
+                       levels=c('Sept_O7A', 'Sept_O8', 'Sept_O9', 'Sept_O10',
+                                'Sept_O11','Sept_O12','Sept_O1','Sept_O2','Sept_O3',
+                                'Sept_O4','Sept_O5', 'Sept_O6','Sept_O7P'))
+Septopen$Name <- recode(Septopen$Name, 
+                           Sept_O7A='7 AM', Sept_O8= '8 AM',
+                        Sept_O9 = '9 AM',Sept_O10= '10 AM',
+                        Sept_O11= '11 AM', Sept_O12= '12 PM',
+                       Sept_O1= '1 PM', Sept_O2= '2 PM', 
+                       Sept_O3= '3 PM', Sept_O4= '4 PM', 
+                       Sept_O5= '5 PM', Sept_O6= '6 PM', 
+                       Sept_O7P= '7 PM')
+
+Octveg$Name <- factor(Octveg$Name, 
+                       levels=c('Oct_V7A', 'Oct_V8', 'Oct_V9',
+                            'Oct_V10', 'Oct_V11', 'Oct_V12',
+                            'Oct_V1', 'Oct_V2','Oct_V3',
+                            'Oct_V4','Oct_V5','Oct_V6','Oct_V7P'))
+
+Octveg$Name <- recode(Octveg$Name, 
+                           Oct_V7A='7 AM', Oct_V8= '8 AM', 
+                           Oct_V9 = '9 AM', Oct_V10= '10 AM',
+                        Oct_V11= '11 AM', Oct_V12= '12 PM',
+                         Oct_V1= '1 PM',Oct_V2= '2 PM', 
+                        Oct_V3= '3 PM',  Oct_V4= '4 PM', 
+                       Oct_V5= '5 PM', Oct_V6= '6 PM', 
+                       Oct_V7P= '7 PM')
+Octopen$Name <- factor(Octopen$Name, 
+                       levels=c('Oct_O7A', 'Oct_O8', 'Oct_O9',
+                                'Oct_O10', 'Oct_O11', 'Oct_O12',
+                                'Oct_O1', 'Oct_O2', 'Oct_O3',
+                                'Oct_O4', 'Oct_O5', 'Oct_O6',
+                                'Oct_O7P'))
+Octopen$Name <- recode(Octopen$Name, 
+                       Oct_O7A='7 AM', Oct_O8= '8 AM', 
+                       Oct_O9 = '9 AM',  Oct_O10= '10 AM',
+                       Oct_O11= '11 AM', Oct_O12= '12 PM',
+                       Oct_O1= '1 PM',Oct_O2= '2 PM', 
+                       Oct_O3= '3 PM', Oct_O4= '4 PM',
+                       Oct_O5= '5 PM', Oct_O6= '6 PM',
+                       Oct_O7P= '7 PM')
+
+Julyveg$h2o <- 0.23
+JulyOpen$h2o <-0.23
+Augopen$h2o <- -.15
+Augveg$h2o <- -.15
+Septopen$h2o <- 0.1
+Septveg$h2o <- 0.1
+Octopen$h2o <- 0.01
+Octveg$h2o <- 0.01
+
+Julyveg$h2o_cat <- "Flooded"
+JulyOpen$h2o_cat <- "Flooded"
+Augopen$h2o_cat <-"Dry/Partially Flooded"
+Augveg$h2o_cat <-"Dry/Partially Flooded"
+Septopen$h2o_cat <-"Dry/Partially Flooded"
+Septveg$h2o_cat <-"Dry/Partially Flooded"
+Octopen$h2o_cat <-"Dry/Partially Flooded"
+Octveg$h2o_cat <-"Dry/Partially Flooded"
+
+Julyveg$DOY <- 187
+JulyOpen$DOY <- 187
+Augopen$DOY <- 230
+Augveg$DOY <-230
+Septopen$DOY <- 257
+Septveg$DOY <-257
+Octopen$DOY <- 285
+Octveg$DOY <- 285
+
+full<- rbind( JulyOpen, Julyveg, Augopen, Augveg, Septopen, Septveg, Octopen, Octveg)
+
+full$Interval <- factor(full$Interval ,
+                       levels=c('morning', 'afternoon',
+                                'evening'))
+full$Interval <- recode(full$Interval, 
+                           morning='Morning', afternoon=
+                          'Afternoon', evening = 'Evening')
+full$Veg <- recode(full$Veg, 
+                           n='Non-Vegetated', y= 'Vegetated')
+full$Veg <-as.factor(full$Veg)
+
+full$Month <- factor(full$Month ,
+                      levels=c('July','August','September','October'))
+
+write.csv(full, "full.csv")
+```
+#_________________
+#STATS HERE
+```{r}
+library(multcomp) # for statistical letters on barplots
+#library(multcompView)
+library(emmeans) #pairwise comparisons across groups
+library(car) #to run ANOVA
+
+str(full)
+```
+#CO2 MODELS
+```{r}
+options(contrasts=c('contr.sum', 'contr.poly')) #sets reference to grand mean rather than reference to another level
+#Day of Year
+mod1_lm<-lm(CO2_Flux~DOY*Interval*Veg, data = full)
+summary(mod1_lm)
+Anova(mod1_lm, type=3)
+mod1_lm_RMSE=sqrt(mean(mod1_lm$residuals^2))
+
+#continuous water values 1 per month
+cO2_water_lm<-lm(CO2_Flux~h2o *Interval*Veg,data = full)
+summary(cO2_water_lm) #basian??
+Anova(cO2_water_lm, type=3) 
+cO2_water_lm_RMSE=sqrt(mean(cO2_water_lm$residuals^2))
+
+#DO levels
+cO2_DO_lm<-lm(CO2_Flux~presens1*Interval*Veg,data = full)
+summary(cO2_DO_lm) 
+Anova(cO2_DO_lm, type=3) 
+cO2_DO_lm_RMSE=sqrt(mean(cO2_DO_lm$residuals^2))
+
+#two water categories (inundation: fully or partially)
+cO2_h2ocat_lm<-lm(CO2_Flux~h2o_cat*Interval*Veg,data = full)
+summary(cO2_h2ocat_lm) #basian??
+Anova(cO2_h2ocat_lm, type=3) #
+cO2_h2ocat_lm_RMSE=sqrt(mean(cO2_h2ocat_lm$residuals^2))
+
+```
+#CH4 MODELS
+```{r}
+mod2_lm<-lm(CH4_Flux~DOY*Interval*Veg, data = full)
+summary(mod2_lm)
+Anova(mod2_lm, type=3)
+mod2_lm_RMSE=sqrt(mean(mod2_lm$residuals^2))
+
+cH4_water_lm<-lm(CH4_Flux~h2o*Interval*Veg,data = full)
+summary(cH4_water_lm) #basian??
+Anova(cH4_water_lm, type=3) 
+cH4_water_lm_RMSE=sqrt(mean(cH4_water_lm$residuals^2))
+
+cH4_DO_lm<-lm(CH4_Flux~presens1*Interval*Veg,data = full)
+summary(cH4_DO_lm) #basian??
+Anova(cH4_DO_lm, type=3) #
+cH4_DO_lm_RMSE=sqrt(mean(cH4_DO_lm$residuals^2))
+
+cH4_h2ocat_lm<-lm(CH4_Flux~h2o_cat*Interval*Veg,data = full)
+summary(cH4_h2ocat_lm) #basian??
+Anova(cH4_h2ocat_lm, type=3) #
+cH4_h2ocat_lm_RMSE=sqrt(mean(cH4_h2ocat_lm$residuals^2))
+
+cH4_h2olevel_lm<-lm(CH4_Flux~level*Interval*Veg,data = full)
+summary(cH4_h2olevel_lm) #basian??
+Anova(cH4_h2olevel_lm, type=3) #
+cH4_level_lm_RMSE=sqrt(mean(cH4_h2olevel_lm$residuals^2))
+```
+#flux~ Day of Year (DOY)
+##CO2
+```{r}
+MeanPlusSe<-function(x) mean(x)+plotrix::std.error(x) #letters
+
+full$DOY<-as.factor(full$DOY) #DOY has to be factor here for plots
+
+mod1_lm<-lm(CO2_Flux~DOY*Interval*Veg, data = full)
+summary(mod1_lm)
+Anova(mod1_lm, type=3)
+mod1_lm_RMSE=sqrt(mean(mod1_lm$residuals^2)) #calculating root mean squared error
+#use anova 3 (better for interactions and type 1 is when order matters) to see which variables and interactions are significant which type of anova
+
+#multcomp package contains function cld which is where significance letters on plots come from
+cld<-cld(emmeans(mod1_lm, ~DOY*Veg),
+                  sort=F,Letters="abcdefgh",adjust="none", reversed= FALSE) #when adjust=none then it is Fisher LSD test (multiple T test without any penalty for having multiple tests), left blank = Tukey test. 
+
+C1<-left_join(full,cld) %>% #for letters above bars
+  ggplot(., aes(DOY, CO2_Flux, fill=Veg))+ 
+    stat_summary(geom="bar",fun = "mean",position = "dodge",
+                 color="white",linewidth=.25)+
+    stat_summary(geom="errorbar",fun.data = "mean_se",width=.1,
+               position = position_dodge(.9))+
+    stat_summary(geom="text",fun = "MeanPlusSe", 
+                 position = position_dodge(.9),
+               aes(label=trimws(.group)),vjust = -.5)+
+    labs(x="Month", fill="Vegetation")+
+    scale_y_continuous(expand=expansion (mult = c(0.01, 0.2)))+
+    ylab(expression(CO[2]~(mu~mol~m^-2~s^-1)))+
+    scale_fill_manual(values = c("#E69F00", "#009E73"))+
+    theme_bw(base_size = 17)+
+    theme(axis.text.x = element_blank(),
+          axis.title.x=element_blank())
+
+##Interval plot
+cld2<-cld(emmeans(mod1_lm, ~Interval*Veg),
+                  sort=T, Letters="abcdefgh",adjust="none", reversed= TRUE)
+
+C2<-left_join(full,cld2) %>%
+  ggplot(.,aes(Interval,CO2_Flux,fill=Veg))+
+    stat_summary(geom="bar",fun = "mean",position = "dodge",
+                 color="white", linewidth=.25)+
+    stat_summary(geom="errorbar",fun.data = "mean_se",width=.1,
+               position = position_dodge(.9))+
+    stat_summary(geom="text",fun = "MeanPlusSe",
+                 position = position_dodge(.9),
+               aes(label=trimws(.group),size=1.25),vjust = -.5)+
+    guides(size = "none")+
+    labs(x="Interval : Vegetation",fill="Vegetation")+
+    ylab(expression(CO[2]~(mu~mol~m^-2~s^-1)))+
+     scale_y_continuous(expand = expansion(mult = 0.2))+
+    scale_fill_manual(values = c("#E69F00", "#009E73"))+
+    theme_bw(base_size = 17)+
+   theme(axis.text.x = element_blank(),
+         axis.title.x=element_blank(),
+         axis.title.y=element_blank())
+
+```
+## CH4
+```{r}
+#stats CH4
+month2_lm<-lm(CH4_Flux~DOY*Interval*Veg,data = full)
+#plot(month2_lm) #basian??
+Anova(month2_lm, type=3) #type 3 Anova
+
+##Month plot
+cld3<-cld(emmeans(month2_lm, ~DOY*Veg),
+                  sort=F, Letters="abcdefgh", 
+          adjust="none", reversed= TRUE)
+
+M1<-left_join(full,cld3) %>%
+  ggplot(.,aes(DOY, CH4_Flux, fill=Veg))+
+    stat_summary(geom="bar",fun = "mean",
+                 position = "dodge",
+                 color="white",size=.25)+
+    stat_summary(geom="errorbar",fun.data = "mean_se",width=.1,
+               position = position_dodge(.9))+
+    stat_summary(geom="text",fun = "MeanPlusSe", 
+                 position = position_dodge(.9),
+               aes(label=trimws(.group)),vjust = -.5)+
+    guides(size = FALSE)+
+    labs(x="Month",fill="Vegetation")+
+    ylab(expression(CH[4]~(mu~mol~m^-2~s^-1)))+
+    scale_y_continuous(expand = expansion(mult = c(0.1, 0.2)))+
+    scale_x_discrete("Month",
+    labels = c(
+      "187" = "July",
+      "230" = "August",
+      "257" = "September",
+      "285" = "October"))+
+   scale_fill_manual(values = c("#E69F00", "#009E73"))+
+   theme_bw(base_size = 17)+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+##Interval plot
+cld4<-cld(emmeans(mod2_lm, ~Interval*Veg),
+                  sort=T,Letters="abcdefgh",adjust="none", reversed= TRUE)
+
+M2<-left_join(full,cld4) %>%
+  ggplot(.,aes(Interval,CH4_Flux,fill=Veg))+
+    stat_summary(geom="bar",fun = "mean",position = "dodge",
+                 color="white",size=.25)+
+    stat_summary(geom="errorbar",fun.data = "mean_se",width=.1,
+               position = position_dodge(.9))+
+    stat_summary(geom="text",fun = "MeanPlusSe",position = position_dodge(.9),
+               aes(label=trimws(.group),size=1.25),vjust = -.5)+
+    guides(size = FALSE)+
+    labs(x="Time of Day",fill="Vegetation")+
+    ylab(expression(CH[4]~(mu~mol~m^-2~s^-1)))+
+     scale_y_continuous(expand = expansion(mult = 0.2))+
+    scale_fill_manual(values = c("#E69F00", "#009E73"))+
+    theme_bw(base_size = 17)+
+   theme(axis.text.x = element_text(angle = 45, hjust = 1),
+         axis.title.y=element_blank())
+
+tiff("Figs/Figure2.tiff",width = 11.6, height = 8, units = "in", res = 1000)
+ggarrange(C1,C2,NULL, NULL,M1,M2, nrow = 3, ncol= 2, align = "hv",
+          heights =c(1,-.25,1),
+          common.legend=TRUE,legend = "right") #,
+         # labels = "AUTO")
+dev.off()
+```
+#flux ~ Water
+```{r}
+
+
+aggregate(full$CO2_Flux, list(full$h2o_cat), FUN=mean)
+aggregate(full$CH4_Flux, list(full$h2o_cat), FUN=mean)
+
+p1<-ggplot(full, aes(x=h2o, y=CO2_Flux, fill= Month))+
+  geom_violin()+
+  geom_hline(yintercept=0.856, linetype="dashed", 
+                color = "black", size=2)+
+    geom_hline(yintercept=-1.23, linetype="dashed", 
+                color = "blue", size=2)+
+    stat_summary(fun.y=median, geom="point", size=4, color= c("blue", "black","black", "black"))+
+  scale_fill_manual(values=c("lightblue","#FFFF00","#CC6600",
+                             "#660000"))+
+  ylab(expression(CO[2]~flux~(mu~mol~m^-2~s^-1)))+
+  theme_bw(base_size = 15)+
+  theme(axis.title.x=element_blank(),
+        axis.text.x = element_blank())
+
+p2<-ggplot(full, aes(x=h2o, y=CH4_Flux, fill= Month))+
+  geom_violin()+
+    geom_hline(yintercept=0.034, linetype="dashed", 
+                color = "black", size=2)+
+    geom_hline(yintercept=0.39, linetype="dashed",
+               color = "blue", size=2)+
+    scale_fill_manual(values=c("lightblue","#FFFF00","#CC6600",
+                             "#660000"))+
+  stat_summary(fun.y=median, geom="point", size=4,color= c("blue", "black","black", "black"))+
+  labs(x="Water Level")+
+  ylim(-0.2, 1.3)+
+  ylab(expression(CH[4]~flux~(mu~mol~m^-2~s^-1)))+
+  theme_bw(base_size = 15)
+
+```
+#flux ~ oxygen
+```{r}
+
+p3<-ggplot(full, aes(x=presens1, y=CO2_Flux, fill=Month)) + 
+ geom_violin()+
+  geom_hline(yintercept=0.856, linetype="dashed", 
+                color = "black", size=2)+
+  geom_hline(yintercept=-1.23, linetype="dashed", 
+                color = "blue", size=2)+
+  stat_summary(fun.y=median, geom="point", size=2, 
+                 color="black")+
+  scale_fill_manual(values=c("lightblue","#FFFF00","#CC6600",
+                             "#660000"))+
+  stat_summary(aes(group=1),fun.y=median, geom="point", 
+             size=4,color= c("blue", "black","black", "black")) +
+  ylab(expression(CO[2]~(mu~mol~m^-2~s^-1)))+
+  xlab(expression(DO~concentration~(mg~L^-1)))+
+  ylim(-8,6)+
+  theme_bw(base_size = 15)+
+      #theme(axis.text.y = element_blank(),
+      theme(axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            axis.text.y=element_blank(),
+            axis.text.x = element_blank())
+
+p4<-ggplot(full, aes(x=presens1, y=CH4_Flux, fill=Month)) + 
+    geom_violin()+
+    geom_hline(yintercept=0.034, linetype="dashed", 
+                color = "black", size=2)+
+    geom_hline(yintercept=0.39, linetype="dashed",
+               color = "blue", size=2)+
+    scale_fill_manual(values=c("lightblue","#FFFF00","#CC6600",
+                             "#660000"))+
+  stat_summary(fun.y=median, geom="point",  size=4,
+               color= c("blue", "black","black", "black"))+
+  xlab(expression(DO~Concentration~(mg~L^-1)))+
+  ylim (-0.1, 1.3)+
+  theme_bw(base_size = 15)+   
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank())
+#tiff("Figs/SurveyDistribution.tiff",width = 6.06, height = 4.58, units = "in", res = 300)
+tiff("Figs/figure3.tiff",width = 9.84, height = 7.15, units = "in", res = 1000)
+
+ggarrange(p1, p3, p2, p4 ,nrow = 2, ncol= 2, 
+         align = "hv", common.legend=TRUE,
+         legend = "right", labels="AUTO")
+dev.off()
+
+```
+#Compare Tower Fluxes
+```{r}
+#Data for this will be available through Github. It is based on the data collected from the Eddy covariance Tower which is shared on Ameriflux. 
+
+library(reshape2) 
+library(reshape)
+July_full<- rbind( JulyOpen, Julyveg)
+Aug_full <- rbind(Augopen, Augveg) 
+Sep_full <-rbind(Septopen, Septveg)
+Oct_full<-rbind (Octopen, Octveg)
+
+July_short = subset(July_full, select = c(mil_time, CO2_Flux))
+July_short$mil_time <-as.factor(July_short$mil_time)
+Julymelt <-  melt(July_short ,id= c("mil_time"))
+jultower<- read.csv("Jul_Tower_CO2.csv")
+July_full_CO2<- rbind(Julymelt, jultower)
+
+Aug_short = subset(Aug_full, select = c(mil_time, CO2_Flux))
+Aug_short$mil_time <-as.factor(Aug_short$mil_time)
+Augmelt <-  melt(Aug_short ,id= c("mil_time"))
+Augtower<- read.csv("Aug_Tower_CO2.csv")
+Aug_full_CO2<- rbind(Augmelt, Augtower)
+
+```
+##cO2 plots
+```{r}
+j<-ggplot(July_full_CO2, aes(x=mil_time, y=value, fill=variable)) + 
+  geom_boxplot()+
+     scale_y_continuous(limits = c(-7.5,5))+
+  labs(
+    title = "July",
+    x = "Time of Day (Hour)")+
+  scale_fill_discrete(labels=c('Cove (Variably Inundated)', 'Tower (Continuously Flooded)'))+
+  guides(fill=guide_legend(title="Method"))+
+  ylab(expression(CO[2]~flux~(mu~mol~m^-2~s^-1)))+
+    geom_hline(yintercept=0, linetype="dashed", 
+               color = "black",  size=2)+
+ # scale_x_continuous(breaks = seq(from = 7, to = 20, by = 1))+
+  theme_bw(base_size = 15)+
+  theme (plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5),
+       axis.title.x = element_blank(),
+       axis.text.x =element_blank())
+
+
+a<-ggplot(Aug_full_CO2, aes(x=mil_time, y=value, fill=variable)) + 
+  geom_boxplot()+
+       scale_y_continuous(limits = c(-7.5,5))+
+  labs(
+    title = "August",
+    x = "Time of Day (Hour)")+
+  scale_fill_discrete(labels=c('Cove (Variably Inundated)', 'Tower (Continuously Flooded)'))+
+  guides(fill=guide_legend(title="Method"))+
+    geom_hline(yintercept=0, linetype="dashed", 
+               color = "black", size=2)+
+ # ylab(expression(CO[2]~(mu~mol~m^-2~s^-1)))+
+ # scale_x_continuous(breaks = seq(from = 7, to = 20, by = 1))+
+  theme_bw(base_size = 15)+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+       axis.title.x=element_blank(),
+       axis.text.x =element_blank())
+
+```
+##CH4 dataframe
+```{r}
+
+July_short2 = subset(July_full, select = c(mil_time, CH4_Flux))
+July_short2$mil_time <-as.factor(July_short2$mil_time)
+Julymelt2 <-  melt(July_short2 ,id= c("mil_time"))
+jultower2<- read.csv("Jul_Tower_CH4.csv")
+July_full_CH4<- rbind(Julymelt2, jultower2)
+
+Aug_short2 = subset(Aug_full, select = c(mil_time, CH4_Flux))
+Aug_short2$mil_time <-as.factor(Aug_short2$mil_time)
+Augmelt2 <-  melt(Aug_short2 ,id= c("mil_time"))
+Augtower2<- read.csv("Aug_Tower_CH4.csv")
+Aug_full_CH4<- rbind(Augmelt2, Augtower2)
+
+```
+##cH4 plots
+```{r}
+
+j2<-ggplot(July_full_CH4, aes(x=mil_time, y=value, fill=variable)) + 
+  geom_boxplot()+
+     scale_y_continuous(limits = c(0,1.7))+
+  labs(
+   # title = "July",
+    x = "Time of Day (Hour)")+
+    scale_fill_discrete(labels=c('Cove (Variably Inundated)', 'Tower (Continuously Flooded)'))+
+  guides(fill=guide_legend(title="Method"))+
+  ylab(expression(CH[4]~flux~(mu~mol~m^-2~s^-1)))+
+  geom_hline(yintercept=0, linetype="dashed", 
+             color = "black", size=2)+
+  theme_bw(base_size = 15)+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
+     #  axis.title.x = element_blank(),
+     #  axis.text.x =element_blank())
+
+a2<-ggplot(Aug_full_CH4, aes(x=mil_time, y=value, fill=variable)) + 
+  geom_boxplot()+
+     scale_y_continuous(limits = c(0,1.7))+
+  labs(
+  #  title = "August",
+    x = "Time of Day (Hour)")+
+  scale_fill_discrete(labels=c('Cove (Variably Inundated)', 'Tower (Continuously Flooded)'))+
+    geom_hline(yintercept=0, linetype="dashed",
+               color = "black", size=2)+
+  guides(fill=guide_legend(title="Method"))+
+  theme_bw(base_size = 15)+
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank())
+      #  axis.title.x=element_blank(),
+      #  axis.text.x =element_blank())
+
+tiff("Figs/Figure4.tiff",width = 10, height = 6.4, units = "in", res = 1000)
+ggarrange(j,a,j2, a2, nrow = 2, ncol=2, align = "v",common.legend=TRUE,legend = "right",  labels="AUTO")
+
+dev.off()
+```
